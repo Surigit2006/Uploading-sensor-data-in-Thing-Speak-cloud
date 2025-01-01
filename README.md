@@ -71,10 +71,73 @@ Automatically act on your data and communicate using third-party services like T
 
 
 # PROGRAM:
+```
+#include <WiFi.h>
+#include "ThingSpeak.h" // always include thingspeak header file after other header files and custom macros
+#define Soil_Moisture 34
+char ssid[] = "1";   // your network SSID (name) 
+char pass[] = "12345678";   // your network password
+int keyIndex = 0;            // your network key Index number (needed only for WEP)
+WiFiClient  client;
 
+unsigned long myChannelNumber = 2787743;
+const int ChannelField = 1; 
+const char * myWriteAPIKey = "T5IOUX8JUG39FKKY";
+
+const int airValue = 4095;      // Analog value when the sensor is in dry air
+const int waterValue = 0;
+int percentage =0;
+void setup() {
+  Serial.begin(115200);  //Initialize serial
+  pinMode(Soil_Moisture, INPUT);
+  WiFi.mode(WIFI_STA);   
+  ThingSpeak.begin(client);  // Initialize ThingSpeak
+}
+
+void loop()
+{
+ if (WiFi.status() != WL_CONNECTED)
+  {
+    Serial.print("Attempting to connect to SSID: ");
+    Serial.println(ssid);
+    while (WiFi.status() != WL_CONNECTED)
+    {
+      WiFi.begin(ssid, pass);
+      Serial.print(".");
+      delay(5000);
+    }
+    Serial.println("\nConnected.");
+  }
+
+ /* Soil MoistureSensor */
+  int Soil_Value = analogRead(Soil_Moisture);
+  percentage = map(Soil_Value, airValue, waterValue, 0, 100);
+
+  // Ensure the percentage stays in the 0-100 range
+  percentage = constrain(percentage, 0, 100);
+  Serial.println("Soil moisture percentage");
+  Serial.println(percentage);
+  ThingSpeak.writeField(myChannelNumber, ChannelField, percentage, myWriteAPIKey);
+  
+   delay(5000); // Wait 20 seconds to update the channel again
+}
+```
 # CIRCUIT DIAGRAM:
 
+![WhatsApp Image 2024-12-17 at 09 32 42_3158a62d](https://github.com/user-attachments/assets/9f519720-207c-4e5f-bf8b-d444afdce1d9)
+
+
 # OUTPUT:
+
+
+
+![image](https://github.com/user-attachments/assets/1f6e03f8-6ac1-41c2-acff-1e19f5310848)
+
+
+
+![image](https://github.com/user-attachments/assets/97b7b509-2030-4f13-9c92-4e1d0a073127)
+
+
 
 # RESULT:
 
